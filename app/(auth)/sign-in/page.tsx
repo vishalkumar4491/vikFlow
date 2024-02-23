@@ -1,7 +1,10 @@
-import React from 'react';
+import { SignIn } from '@clerk/nextjs';
+import { Metadata } from 'next';
 
-const SignIn = () => {
-  return <div>sign-in</div>;
+export const metadata: Metadata = {
+  title: 'Login | VikFlow',
 };
 
-export default SignIn;
+export default function Page() {
+  return <SignIn />;
+}
