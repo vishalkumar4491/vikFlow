@@ -60,7 +60,7 @@ const Theme = () => {
                 if (item.value !== 'system') {
                   localStorage.theme = item.value;
                 } else {
-                  localStorage.removeItem('themes');
+                  localStorage.removeItem('theme');
                 }
               }}
             >

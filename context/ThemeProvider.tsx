@@ -16,7 +16,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (
       localStorage.theme === 'dark' ||
       (!('theme' in localStorage) &&
-        window.matchMedia('prefers-color-scheme: dark').matches)
+        window.matchMedia('(prefers-color-scheme: dark)').matches)
     ) {
       setMode('dark');
       document.documentElement.classList.add('dark');
@@ -39,6 +39,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
+  console.log('context ', context);
 
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
