@@ -4,8 +4,8 @@ import Link from 'next/link';
 import React from 'react';
 import Theme from './Theme';
 import MobileNav from './MobileNav';
+import GlobalSearch from '../search/GlobalSEarch';
 // import MobileNav from "./MobileNav";
-// import GlobalSearch from "../search/GlobalSearch";
 
 const Navbar = () => {
   return (
@@ -13,7 +13,7 @@ const Navbar = () => {
       className="flex-between 
         background-light900_dark200 fixed z-50 
         w-full gap-5 p-6 shadow-light-300 
-        sm:px-12 dark:shadow-none"
+        dark:shadow-none sm:px-12"
     >
       <Link href="/" className="flex items-center gap-1">
         <Image
@@ -24,13 +24,13 @@ const Navbar = () => {
         />
         <p
           className="h2-bold font-spaceGrotesk
-        text-dark-100 max-sm:hidden
-        dark:text-light-900"
+        text-dark-100 dark:text-light-900
+        max-sm:hidden"
         >
           Vik <span className="text-primary-500">Flow</span>
         </p>
       </Link>
-      {/* <GlobalSearch /> */}
+      <GlobalSearch />
       <div className="flex-between gap-5">
         <Theme />
         <SignedIn>
