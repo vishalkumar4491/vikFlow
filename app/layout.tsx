@@ -1,9 +1,8 @@
-import React from 'react';
-import { ClerkProvider } from '@clerk/nextjs';
-import { Inter, Space_Grotesk } from 'next/font/google';
-import type { Metadata } from 'next';
-
 import './globals.css';
+import React from 'react';
+import type { Metadata } from 'next';
+import { Inter, Space_Grotesk } from 'next/font/google';
+import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/context/ThemeProvider';
 
 const inter = Inter({
@@ -15,15 +14,15 @@ const inter = Inter({
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-spaceGrotesk',
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
-  title: 'VikFlow',
+  title: 'DevOverflow',
   description:
-    'A community-driven platform for asking and answering programming questions. Get help, share knowledge, amd collaborate with developers from around the world. Explore topics in web development, mobile app development, algorithm, data structure i.e. DSA and more.',
+    'A community-driven plartform for asking and answering programming questions get help, share knowledge, and collaborate with developers from aroud the world. Explore topics in web development, mobile app development, algorithms, data structures, and more.',
   icons: {
-    icon: '/assets/images/site-logo.svg',
+    icon: '/assets/images/site-logo-svg',
   },
 };
 
