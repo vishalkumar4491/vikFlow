@@ -1,3 +1,4 @@
+import QuestionCard from '@/components/cards/QuestionCard';
 import HomeFilters from '@/components/home/HomeFilters';
 import Filter from '@/components/shared/Filter';
 import NoResult from '@/components/shared/NoResult';
@@ -8,47 +9,61 @@ import Link from 'next/link';
 
 const questions = [
   {
-    _id: 1,
-    title: 'Cascading Deletes in SQLAlchemy',
+    _id: '1',
+    title:
+      'Cascading Deletes in SQLAlchemy, can anyone explain it in very easy language.',
     tags: [
-      { _id: 1, name: 'python' },
-      { _id: 2, name: 'javascript' },
-      { _id: 3, name: 'html' },
+      { _id: '1', name: 'python' },
+      { _id: '2', name: 'javascript' },
+      { _id: '3', name: 'html' },
     ],
-    author: 'John Doe',
-    upvotes: 10,
-    views: 100,
-    answers: 2,
-    createdAt: '2023-02-27T19:00:00Z',
+    author: {
+      _id: 'author_id_1',
+      name: 'John Doe',
+      picture: 'author_picture_url_1',
+    },
+    upvotes: 100,
+    views: 100003,
+    answers: [{ answerProp: 'example' }, { answerProp: 'example' }],
+    createdAt: new Date('2024-02-12T19:00:00Z'), // Use Date directly
   },
   {
-    _id: 2,
+    _id: '2',
     title: 'What is HTML',
     tags: [
-      { _id: 1, name: 'python' },
-      { _id: 2, name: 'javascript' },
-      { _id: 3, name: 'html' },
+      { _id: '1', name: 'python' },
+      { _id: '2', name: 'javascript' },
+      { _id: '3', name: 'html' },
     ],
-    author: 'John Doe',
-    upvotes: 8,
-    views: 10,
-    answers: 5,
-    createdAt: '2023-02-27T19:00:00Z',
+    author: {
+      _id: 'author_id_2',
+      name: 'John Doe',
+      picture: 'author_picture_url_2',
+    },
+    upvotes: 8070,
+    views: 1005,
+    answers: [{ answerProp: 'example' }], // Replace this with the actual structure of answers
+    createdAt: new Date('2023-02-27T19:00:00Z'), // Use Date directly
   },
   {
-    _id: 3,
+    _id: '3',
     title: 'What is CSS',
     tags: [
-      { _id: 1, name: 'javascript' },
-      { _id: 2, name: 'html' },
+      { _id: '1', name: 'javascript' },
+      { _id: '2', name: 'html' },
     ],
-    author: 'John Doe',
+    author: {
+      _id: 'author_id_3',
+      name: 'John Doe',
+      picture: 'author_picture_url_3',
+    },
     upvotes: 10,
     views: 100,
-    answers: 2,
-    createdAt: '2023-02-27T19:00:00Z',
+    answers: [{ answerProp: 'example' }], // Replace this with the actual structure of answers
+    createdAt: new Date('2023-02-27T19:00:00Z'), // Use Date directly
   },
 ];
+
 export default function Home() {
   return (
     <>
@@ -81,7 +96,19 @@ export default function Home() {
 
       <div className="mt-10 flex w-full flex-col gap-6">
         {questions.length > 0 ? (
-          questions.map((question) => 'QuestionCard')
+          questions.map((question) => (
+            <QuestionCard
+              key={question._id}
+              _id={question._id}
+              title={question.title}
+              tags={question.tags}
+              author={question.author}
+              upvotes={question.upvotes}
+              views={question.views}
+              answers={question.answers}
+              createdAt={question.createdAt}
+            />
+          ))
         ) : (
           <NoResult
             title="There’s no question to show"

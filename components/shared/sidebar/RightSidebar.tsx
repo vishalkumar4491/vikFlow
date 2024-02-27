@@ -6,39 +6,39 @@ import RenderTag from '../RenderTag';
 const RightSidebar = () => {
   const hotQuestions = [
     {
-      _id: 1,
+      _id: '1',
       title:
         'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
     },
     {
-      _id: 2,
+      _id: '2',
       title:
         'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
     },
     {
-      _id: 3,
+      _id: '3',
+      title:
+        'Best  for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
+    },
+    {
+      _id: '4',
       title:
         'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
     },
     {
-      _id: 4,
-      title:
-        'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
-    },
-    {
-      _id: 5,
+      _id: '5',
       title:
         'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
     },
   ];
 
   const poplarTags = [
-    { _id: 1, name: 'javascript', totalQuestions: 5 },
-    { _id: 2, name: 'css', totalQuestions: 2 },
-    { _id: 3, name: 'html', totalQuestions: 3 },
-    { _id: 4, name: 'next.js', totalQuestions: 7 },
-    { _id: 5, name: 'mongodb', totalQuestions: 1 },
-    { _id: 6, name: 'react', totalQuestions: 4 },
+    { _id: '1', name: 'javascript', totalQuestions: 5 },
+    { _id: '2', name: 'css', totalQuestions: 2 },
+    { _id: '3', name: 'html', totalQuestions: 3 },
+    { _id: '4', name: 'next.js', totalQuestions: 7 },
+    { _id: '5', name: 'mongodb', totalQuestions: 1 },
+    { _id: '6', name: 'react', totalQuestions: 4 },
   ];
 
   return (
