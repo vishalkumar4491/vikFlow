@@ -1,19 +1,22 @@
 import Question from '@/components/forms/Question';
 import { getUserById } from '@/lib/actions/user.action';
 import { auth } from '@clerk/nextjs';
+import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
-const Page = async () => {
-  // const { userId } = auth();
+export const metadata: Metadata = {
+  title: 'Ask Question | Dev Overflow',
+  description:
+    'Ask a question on Dev Overflow - A community-driven platform for asking and answering programming questions. Get help, share knowledge and collaborate with developers from around the world. Explore topics in web developments, mobile app development, algorithms, data structures and more...',
+};
 
-  const userId = 'clerk456';
+const Page = async () => {
+  const { userId } = auth();
 
   if (!userId) redirect('/sign-in');
 
   const mongoUser = await getUserById({ userId });
-
-  console.log(mongoUser);
 
   return (
     <div>
