@@ -1,25 +1,13 @@
+/* eslint-disable camelcase */
 import { Webhook } from 'svix';
+import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { buffer } from 'micro';
 import { createUser, deleteUser, updateUser } from '@/lib/actions/user.action';
 import { NextResponse } from 'next/server';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== 'POST') {
-    return res.status(405);
-  }
+export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
-  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+  const WEBHOOK_SECRET = process.env.NEXT_CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
@@ -28,20 +16,23 @@ export default async function handler(
   }
 
   // Get the headers
-  const svix_id = req.headers['svix-id'] as string;
-  const svix_timestamp = req.headers['svix-timestamp'] as string;
-  const svix_signature = req.headers['svix-signature'] as string;
+  const headerPayload = headers();
+  const svix_id = headerPayload.get('svix-id');
+  const svix_timestamp = headerPayload.get('svix-timestamp');
+  const svix_signature = headerPayload.get('svix-signature');
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return res.status(400).json({ error: 'Error occured -- no svix headers' });
+    return new Response('Error occured -- no svix headers', {
+      status: 400,
+    });
   }
 
-  console.log('headers', req.headers, svix_id, svix_signature, svix_timestamp);
   // Get the body
-  const body = (await buffer(req)).toString();
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
 
-  // Create a new Svix instance with your secret.
+  // Create a new SVIX instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
 
   let evt: WebhookEvent;
@@ -55,7 +46,9 @@ export default async function handler(
     }) as WebhookEvent;
   } catch (err) {
     console.error('Error verifying webhook:', err);
-    return res.status(400).json({ Error: err });
+    return new Response('Error occured', {
+      status: 400,
+    });
   }
 
   const eventType = evt.type;
@@ -63,8 +56,7 @@ export default async function handler(
   if (eventType === 'user.created') {
     const { id, email_addresses, image_url, username, first_name, last_name } =
       evt.data;
-
-    // Create a new user in our db
+    // Create a new user in your database
     const mongoUser = await createUser({
       clerkId: id,
       name: `${first_name}${last_name ? ` ${last_name}` : ''}`,
@@ -100,5 +92,5 @@ export default async function handler(
     return NextResponse.json({ message: 'OK', user: deletedUser });
   }
 
-  return res.status(200).json({ response: 'Success' });
+  return NextResponse.json({ message: 'OK' });
 }
