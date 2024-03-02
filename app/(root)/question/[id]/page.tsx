@@ -1,3 +1,4 @@
+import Answer from '@/components/forms/Answer';
 import Metric from '@/components/shared/Metric';
 import ParseHTML from '@/components/shared/ParseHTML';
 import RenderTag from '@/components/shared/RenderTag';
@@ -75,6 +76,8 @@ const QuestionDetails = async ({ params }) => {
           />
         ))}
       </div>
+
+      <Answer />
     </>
   );
 };
