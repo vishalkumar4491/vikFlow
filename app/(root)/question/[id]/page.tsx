@@ -13,7 +13,7 @@ import Link from 'next/link';
 import result from 'postcss/lib/result';
 import React from 'react';
 
-const QuestionDetails = async ({ params }) => {
+const QuestionDetails = async ({ params, searchParams }: any) => {
   const result = await getQuestionById({ questionId: params.id });
   const { userId: clerkId } = auth();
 
