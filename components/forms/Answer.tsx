@@ -19,6 +19,7 @@ import Image from 'next/image';
 
 import { usePathname } from 'next/navigation';
 import { AnswerSchema } from '@/lib/validation';
+import { createAnswer } from '@/lib/actions/answer.action';
 
 interface Props {
   question: string;
@@ -40,7 +41,29 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     },
   });
 
-  const handleCreateAnswer = () => {};
+  const handleCreateAnswer = async (values: z.infer<typeof AnswerSchema>) => {
+    setIsSubmitting(true);
+
+    try {
+      await createAnswer({
+        content: values.answer,
+        author: JSON.parse(authorId),
+        question: JSON.parse(questionId),
+        path: pathname,
+      });
+
+      form.reset();
+      if (editorRef.current) {
+        const editor = editorRef.current as any;
+        editor.setContent('');
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div>
