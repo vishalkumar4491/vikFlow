@@ -10,6 +10,7 @@ import { SignedIn, auth } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
+import AnswerTab from '@/components/shared/AnswerTab';
 
 const Page = async ({ params, searchParams }: URLProps) => {
   const { userId: clerkId } = auth();
@@ -101,7 +102,13 @@ const Page = async ({ params, searchParams }: URLProps) => {
               clerkId={clerkId}
             />
           </TabsContent>
-          <TabsContent value="answers">Answers</TabsContent>
+          <TabsContent value="answers">
+            <AnswerTab
+              searchParams={searchParams}
+              userId={userInfo.user._id}
+              clerkId={clerkId}
+            />
+          </TabsContent>
         </Tabs>
       </div>
     </>
