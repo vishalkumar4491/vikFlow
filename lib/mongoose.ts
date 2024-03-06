@@ -11,7 +11,7 @@ export const connectToDatabase = async () => {
   }
 
   if (isConnected) {
-    return console.log('Already connected to database');
+    return;
   }
 
   try {
