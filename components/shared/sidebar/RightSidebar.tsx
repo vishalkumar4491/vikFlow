@@ -3,18 +3,12 @@ import Link from 'next/link';
 import React from 'react';
 import RenderTag from '../RenderTag';
 import { getHotQuestions } from '@/lib/actions/question.action';
+import { getTopPopularTags } from '@/lib/actions/tag.action';
 
 const RightSidebar = async () => {
   const hotQuestions = await getHotQuestions();
 
-  const poplarTags = [
-    { _id: '1', name: 'javascript', totalQuestions: 5 },
-    { _id: '2', name: 'css', totalQuestions: 2 },
-    { _id: '3', name: 'html', totalQuestions: 3 },
-    { _id: '4', name: 'next.js', totalQuestions: 7 },
-    { _id: '5', name: 'mongodb', totalQuestions: 1 },
-    { _id: '6', name: 'react', totalQuestions: 4 },
-  ];
+  const popularTags = await getTopPopularTags();
 
   return (
     <section className="background-light900_dark200 light-border custom-scrollbar sticky right-0 top-0 h-screen w-[350px] flex-col overflow-y-auto border-l p-6 pt-36 shadow-light-300 dark:shadow-none max-xl:hidden">
@@ -44,12 +38,12 @@ const RightSidebar = async () => {
       <div className="mt-16">
         <h3 className="h3-bold text-dark200_light900">Popular Tags</h3>
         <div className="mt-7 flex flex-col gap-4">
-          {poplarTags.map((tag) => (
+          {popularTags.map((tag) => (
             <RenderTag
               key={tag._id}
               _id={tag._id}
               name={tag.name}
-              totalQuestions={tag.totalQuestions}
+              totalQuestions={tag.numberOfQuestions}
               showCount
             />
           ))}
