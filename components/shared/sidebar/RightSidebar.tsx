@@ -2,35 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import RenderTag from '../RenderTag';
+import { getHotQuestions } from '@/lib/actions/question.action';
 
-const RightSidebar = () => {
-  const hotQuestions = [
-    {
-      _id: '1',
-      title:
-        'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
-    },
-    {
-      _id: '2',
-      title:
-        'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
-    },
-    {
-      _id: '3',
-      title:
-        'Best  for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
-    },
-    {
-      _id: '4',
-      title:
-        'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
-    },
-    {
-      _id: '5',
-      title:
-        'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
-    },
-  ];
+const RightSidebar = async () => {
+  const hotQuestions = await getHotQuestions();
 
   const poplarTags = [
     { _id: '1', name: 'javascript', totalQuestions: 5 },
@@ -48,7 +23,7 @@ const RightSidebar = () => {
         <div className="mt-7 flex w-full flex-col gap-[30px]">
           {hotQuestions.map((question) => (
             <Link
-              href={`/questions/${question._id}`}
+              href={`/question/${question._id}`}
               key={question._id}
               className="flex cursor-pointer items-center justify-between gap-7"
             >
