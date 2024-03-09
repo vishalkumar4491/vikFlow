@@ -1,7 +1,9 @@
 import QuestionCard from '@/components/cards/QuestionCard';
 import Filter from '@/components/shared/Filter';
 import NoResult from '@/components/shared/NoResult';
+import Pagination from '@/components/shared/Pagination';
 import LocalSearch from '@/components/shared/search/LocalSearch';
+import { PAGE_NUMBER_SEARCH_PARAMS_KEY } from '@/constants';
 import { QuestionFilters } from '@/constants/filters';
 import { getSavedQuestions } from '@/lib/actions/user.action';
 import { SearchParamsProps } from '@/types';
@@ -16,6 +18,9 @@ export default async function Bookmark({ searchParams }: SearchParamsProps) {
     clerkId: userId,
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    page: searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+      ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+      : 1,
   });
   return (
     <>
@@ -59,6 +64,17 @@ export default async function Bookmark({ searchParams }: SearchParamsProps) {
             linkTitle="Ask a Question"
           />
         )}
+      </div>
+
+      <div className="mt-10">
+        <Pagination
+          pageNumber={
+            searchParams && searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+              ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+              : 1
+          }
+          isNext={result.isNext}
+        />
       </div>
     </>
   );

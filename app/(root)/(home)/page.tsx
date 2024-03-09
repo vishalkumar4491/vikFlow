@@ -2,8 +2,10 @@ import QuestionCard from '@/components/cards/QuestionCard';
 import HomeFilters from '@/components/home/HomeFilters';
 import Filter from '@/components/shared/Filter';
 import NoResult from '@/components/shared/NoResult';
+import Pagination from '@/components/shared/Pagination';
 import LocalSearch from '@/components/shared/search/LocalSearch';
 import { Button } from '@/components/ui/button';
+import { PAGE_NUMBER_SEARCH_PARAMS_KEY } from '@/constants';
 import { HomePageFilters } from '@/constants/filters';
 import { getQuestions } from '@/lib/actions/question.action';
 import { SearchParamsProps } from '@/types';
@@ -13,6 +15,9 @@ export default async function Home({ searchParams }: SearchParamsProps) {
   const result = await getQuestions({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    page: searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+      ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+      : 1,
   });
   return (
     <>
@@ -66,6 +71,17 @@ export default async function Home({ searchParams }: SearchParamsProps) {
             linkTitle="Ask a Question"
           />
         )}
+      </div>
+
+      <div className="mt-10">
+        <Pagination
+          pageNumber={
+            searchParams && searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+              ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+              : 1
+          }
+          isNext={result.isNext}
+        />
       </div>
     </>
   );

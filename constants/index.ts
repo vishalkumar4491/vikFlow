@@ -71,3 +71,5 @@ export const BADGE_CRITERIA = {
     GOLD: 100000,
   },
 };
+
+export const PAGE_NUMBER_SEARCH_PARAMS_KEY = 'page';

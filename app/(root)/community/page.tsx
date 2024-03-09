@@ -1,6 +1,8 @@
 import UserCard from '@/components/cards/UserCard';
 import Filter from '@/components/shared/Filter';
+import Pagination from '@/components/shared/Pagination';
 import LocalSearch from '@/components/shared/search/LocalSearch';
+import { PAGE_NUMBER_SEARCH_PARAMS_KEY } from '@/constants';
 import { UserFilters } from '@/constants/filters';
 import { getAllUsers } from '@/lib/actions/user.action';
 import { SearchParamsProps } from '@/types';
@@ -10,6 +12,9 @@ const Community = async ({ searchParams }: SearchParamsProps) => {
   const result = await getAllUsers({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    page: searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+      ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+      : 1,
   });
   return (
     <>
@@ -42,6 +47,17 @@ const Community = async ({ searchParams }: SearchParamsProps) => {
           </div>
         )}
       </section>
+
+      <div className="mt-10">
+        <Pagination
+          pageNumber={
+            searchParams && searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+              ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+              : 1
+          }
+          isNext={result.isNext}
+        />
+      </div>
     </>
   );
 };
