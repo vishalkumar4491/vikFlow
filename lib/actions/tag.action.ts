@@ -14,19 +14,69 @@ import Question from '../database/question.model';
 export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
-
-    const { searchQuery } = params;
-
+    const { searchQuery, filter, page = 1, pageSize = 10 } = params;
+    const skipAmount = (page - 1) * pageSize;
     const query: FilterQuery<typeof Tag> = {};
-
     if (searchQuery) {
       query.$or = [{ name: { $regex: new RegExp(searchQuery, 'i') } }];
     }
-
-    const tags = await Tag.find(query).sort({ createdAt: -1 });
-
-    return { tags };
-  } catch (error) {}
+    let sortOptions = {};
+    switch (filter) {
+      case 'popular':
+        sortOptions = { questions: -1 }; // Sorting by number of questions in descending order
+        break;
+      case 'recent':
+        sortOptions = { createdOn: -1 };
+        break;
+      case 'name':
+        sortOptions = { name: 1 };
+        break;
+      case 'old':
+        sortOptions = { createdOn: 1 };
+        break;
+      default:
+        break;
+    }
+    if (filter === 'popular') {
+      const totalTags = await Tag.aggregate([
+        {
+          $match: query,
+        },
+        {
+          $project: {
+            name: 1,
+            description: 1,
+            followers: 1,
+            createdOn: 1,
+            questions: 1,
+            questionsCount: { $size: '$questions' }, // Counting the number of questions for each tag
+          },
+        },
+        {
+          $sort: { questionsCount: -1 }, // Sorting based on the number of questions in descending order
+        },
+        {
+          $skip: skipAmount,
+        },
+        {
+          $limit: pageSize,
+        },
+      ]);
+      const isNext = totalTags.length > skipAmount + pageSize;
+      return { tags: totalTags, isNext };
+    } else {
+      const totalTags = await Tag.countDocuments(query);
+      const tags = await Tag.find(query)
+        .sort(sortOptions)
+        .skip(skipAmount)
+        .limit(pageSize);
+      const isNext = totalTags > skipAmount + tags.length;
+      return { tags, isNext };
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 export async function getTopInteractedTags(params: GetTopInteractedTagsParams) {
   try {
