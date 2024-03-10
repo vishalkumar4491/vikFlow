@@ -201,6 +201,7 @@ export async function deleteAnswer(params: DeleteAnswerParams) {
       { $pull: { answers: answerId } }
     );
     await Interaction.deleteMany({ answer: answerId });
+    await User.findByIdAndUpdate(answer.author, { $inc: { reputation: -10 } });
 
     revalidatePath(path);
   } catch (error) {
