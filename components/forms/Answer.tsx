@@ -8,7 +8,6 @@ import {
   FormMessage,
 } from '../ui/form';
 import { useForm } from 'react-hook-form';
-
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Editor } from '@tinymce/tinymce-react';
@@ -16,10 +15,10 @@ import { useMemo, useRef, useState } from 'react';
 import { useTheme } from '@/context/ThemeProvider';
 import { Button } from '../ui/button';
 import Image from 'next/image';
-
+import { createAnswer } from '@/lib/actions/answer.action';
 import { usePathname } from 'next/navigation';
 import { AnswerSchema } from '@/lib/validation';
-import { createAnswer } from '@/lib/actions/answer.action';
+// import { toast } from "../ui/use-toast";
 
 interface Props {
   question: string;
@@ -43,7 +42,6 @@ const Answer = ({ question, questionId, authorId }: Props) => {
 
   const handleCreateAnswer = async (values: z.infer<typeof AnswerSchema>) => {
     setIsSubmitting(true);
-
     try {
       await createAnswer({
         content: values.answer,
@@ -51,19 +49,74 @@ const Answer = ({ question, questionId, authorId }: Props) => {
         question: JSON.parse(questionId),
         path: pathname,
       });
-
       form.reset();
       if (editorRef.current) {
         const editor = editorRef.current as any;
         editor.setContent('');
       }
+      // toast({
+      //   title: "Answer submitted successfully",
+      //   variant: "default",
+      // });
     } catch (error) {
-      console.log(error);
-      throw error;
+      console.error(error);
+      // toast({
+      //   title: "Failed to submit answer",
+      //   variant: "destructive",
+      // });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const generateAIAnswer = async () => {
+    if (!authorId) return;
+    console.log('Come here');
+    setSetIsSubmittingAI(true);
+    try {
+      console.log('come in try');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ question }),
+        }
+      );
+      console.log('respose', response.json());
+      // const aiAnswer = await response.json();
+
+      // console.log(aiAnswer.reply);
+      // alert(aiAnswer.reply);
+      // Convert plain text to HTML format
+      // const formattedAnswer = aiAnswer.reply.replace(/\n/g, '<br />');
+      // if (editorRef.current) {
+      //   const editor = editorRef.current as any;
+      //   editor.setContent(formattedAnswer);
+      // }
+      // toast({
+      //   title: "Generated AI answer",
+      //   variant: "default",
+      // });
+    } catch (error) {
+      console.error(error);
+      // toast({
+      //   title: "Failed to generate AI answer",
+      //   variant: "destructive",
+      // });
+    } finally {
+      setSetIsSubmittingAI(false);
+    }
+  };
+
+  const isDarkMode = useMemo(() => mode === 'dark', [mode]);
+
+  if (!authorId) {
+    return (
+      <h4 className="paragraph-semibold text-dark400_light800">
+        Please login to answer this question.
+      </h4>
+    );
+  }
 
   return (
     <div>
@@ -74,7 +127,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
 
         <Button
           className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
-          onClick={() => {}}
+          onClick={generateAIAnswer}
         >
           {isSubmittingAI ? (
             <>Generating...</>
@@ -138,8 +191,8 @@ const Answer = ({ question, questionId, authorId }: Props) => {
                         'alignright alignjustify | bullist numlist',
                       content_style:
                         'body { font-family:Inter; font-size:16px }',
-                      skin: mode === 'dark' ? 'oxide-dark' : 'oxide',
-                      content_css: mode === 'dark' ? 'dark' : 'light',
+                      skin: isDarkMode ? 'oxide-dark' : 'oxide',
+                      content_css: isDarkMode ? 'dark' : 'light',
                     }}
                   />
                 </FormControl>
