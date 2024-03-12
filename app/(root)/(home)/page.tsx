@@ -5,20 +5,49 @@ import NoResult from '@/components/shared/NoResult';
 import Pagination from '@/components/shared/Pagination';
 import LocalSearch from '@/components/shared/search/LocalSearch';
 import { Button } from '@/components/ui/button';
-import { PAGE_NUMBER_SEARCH_PARAMS_KEY } from '@/constants';
+import {
+  FILTER_SEARCH_PARAMS_KEY,
+  PAGE_NUMBER_SEARCH_PARAMS_KEY,
+  QUERY_SEARCH_PARAMS_KEY,
+} from '@/constants';
 import { HomePageFilters } from '@/constants/filters';
-import { getQuestions } from '@/lib/actions/question.action';
+import {
+  getQuestions,
+  getRecommendedQuestions,
+} from '@/lib/actions/question.action';
 import { SearchParamsProps } from '@/types';
+import { auth } from '@clerk/nextjs';
 import Link from 'next/link';
 
 export default async function Home({ searchParams }: SearchParamsProps) {
-  const result = await getQuestions({
-    searchQuery: searchParams.q,
-    filter: searchParams.filter,
-    page: searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
-      ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
-      : 1,
-  });
+  const { userId } = auth();
+
+  let result;
+
+  if (searchParams?.filter === 'recommended') {
+    if (userId) {
+      result = await getRecommendedQuestions({
+        userId,
+        searchQuery: searchParams[QUERY_SEARCH_PARAMS_KEY],
+        page: searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+          ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+          : 1,
+      });
+    } else {
+      result = {
+        questions: [],
+        isNext: false,
+      };
+    }
+  } else {
+    result = await getQuestions({
+      searchQuery: searchParams[QUERY_SEARCH_PARAMS_KEY],
+      filter: searchParams[FILTER_SEARCH_PARAMS_KEY],
+      page: searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+        ? +searchParams[PAGE_NUMBER_SEARCH_PARAMS_KEY]
+        : 1,
+    });
+  }
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
