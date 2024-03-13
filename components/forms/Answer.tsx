@@ -18,7 +18,7 @@ import Image from 'next/image';
 import { createAnswer } from '@/lib/actions/answer.action';
 import { usePathname } from 'next/navigation';
 import { AnswerSchema } from '@/lib/validation';
-// import { toast } from "../ui/use-toast";
+import { toast } from '../ui/use-toast';
 
 interface Props {
   question: string;
@@ -54,16 +54,16 @@ const Answer = ({ question, questionId, authorId }: Props) => {
         const editor = editorRef.current as any;
         editor.setContent('');
       }
-      // toast({
-      //   title: "Answer submitted successfully",
-      //   variant: "default",
-      // });
+      toast({
+        title: 'Answer submitted successfully',
+        variant: 'default',
+      });
     } catch (error) {
       console.error(error);
-      // toast({
-      //   title: "Failed to submit answer",
-      //   variant: "destructive",
-      // });
+      toast({
+        title: 'Failed to submit answer',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -83,26 +83,26 @@ const Answer = ({ question, questionId, authorId }: Props) => {
         }
       );
       console.log('respose', response.json());
-      // const aiAnswer = await response.json();
+      const aiAnswer = await response.json();
 
-      // console.log(aiAnswer.reply);
-      // alert(aiAnswer.reply);
+      console.log(aiAnswer.reply);
+      alert(aiAnswer.reply);
       // Convert plain text to HTML format
-      // const formattedAnswer = aiAnswer.reply.replace(/\n/g, '<br />');
-      // if (editorRef.current) {
-      //   const editor = editorRef.current as any;
-      //   editor.setContent(formattedAnswer);
-      // }
-      // toast({
-      //   title: "Generated AI answer",
-      //   variant: "default",
-      // });
+      const formattedAnswer = aiAnswer.reply.replace(/\n/g, '<br />');
+      if (editorRef.current) {
+        const editor = editorRef.current as any;
+        editor.setContent(formattedAnswer);
+      }
+      toast({
+        title: 'Generated AI answer',
+        variant: 'default',
+      });
     } catch (error) {
       console.error(error);
-      // toast({
-      //   title: "Failed to generate AI answer",
-      //   variant: "destructive",
-      // });
+      toast({
+        title: 'Failed to generate AI answer',
+        variant: 'destructive',
+      });
     } finally {
       setSetIsSubmittingAI(false);
     }

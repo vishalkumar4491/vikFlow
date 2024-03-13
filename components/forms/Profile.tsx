@@ -19,7 +19,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { updateUser } from '@/lib/actions/user.action';
 import { ProfileSchema } from '@/lib/validation';
 import { Textarea } from '../ui/textarea';
-// import { toast } from "../ui/use-toast";
+import { toast } from '../ui/use-toast';
 
 interface Props {
   clerkId: string;
@@ -58,13 +58,18 @@ const Profile = ({ clerkId, user }: Props) => {
           },
           path: pathname,
         });
+
+        toast({
+          title: 'Profile update successfully',
+          variant: 'default',
+        });
+
         router.back();
       } catch (error) {
-        console.error(error);
-        // toast({
-        //   title: "Failed to update profile",
-        //   variant: "destructive",
-        // });
+        toast({
+          title: 'Failed to update profile',
+          variant: 'destructive',
+        });
       } finally {
         setIsSubmitting(false);
       }

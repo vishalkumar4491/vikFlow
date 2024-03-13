@@ -37,6 +37,7 @@ export async function getQuestions(params: GetQuestionsParams) {
     }
 
     let sortOptions = {};
+    sortOptions = { createdAt: -1 };
 
     switch (filter) {
       case 'newest':

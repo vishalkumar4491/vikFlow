@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { createQuestion, editQuestion } from '@/lib/actions/question.action';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from '@/context/ThemeProvider';
+import { toast } from '../ui/use-toast';
 
 interface Props {
   type?: string;
@@ -67,6 +68,10 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
           content: values.explanation,
           path: pathname,
         });
+        toast({
+          title: 'Question Edited Successfully',
+          variant: 'default',
+        });
         router.push(`/question/${parsedQuestionDetails._id}`);
       } else {
         await createQuestion({
@@ -76,10 +81,18 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
           author: JSON.parse(mongoUserId),
           path: pathname,
         });
+        toast({
+          title: 'Question Added Successfully',
+          variant: 'default',
+        });
         // navigate to home page
         router.push('/');
       }
     } catch (error) {
+      toast({
+        title: 'Failed to Add Question',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
