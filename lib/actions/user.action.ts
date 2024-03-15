@@ -151,6 +151,36 @@ export async function deleteUser(params: DeleteUserParams) {
 
     console.log('Deleted Answers:', userAnswers);
 
+    // Remove user's answer IDs from questions
+    await Question.updateMany(
+      { _id: { $in: userQuestionIds } },
+      { $pull: { answers: { $in: user.answers } } }
+    );
+
+    // Remove user's upvotes from questions
+    await Question.updateMany(
+      { upvotes: user._id },
+      { $pull: { upvotes: user._id } }
+    );
+
+    // Remove user's upvotes from answers
+    await Answer.updateMany(
+      { upvotes: user._id },
+      { $pull: { upvotes: user._id } }
+    );
+
+    // Remove user's downvotes from questions
+    await Question.updateMany(
+      { downvotes: user._id },
+      { $pull: { downvotes: user._id } }
+    );
+
+    // Remove user's downvotes from answers
+    await Answer.updateMany(
+      { downvotes: user._id },
+      { $pull: { downvotes: user._id } }
+    );
+
     // delete all its interactions
     const deletedInteractions = await Interaction.deleteMany({
       user: user._id,
