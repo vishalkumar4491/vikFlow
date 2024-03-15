@@ -147,11 +147,9 @@ export async function deleteUser(params: DeleteUserParams) {
     console.log('Deleted Questions:', deletedQuestions);
 
     // delete user's answers
-    const deletedAnswers = await Answer.deleteMany({
-      question: { $in: userQuestionIds },
-      author: user._id,
-    });
-    console.log('Deleted Answers:', deletedAnswers);
+    const userAnswers = await Answer.deleteMany({ author: user._id });
+
+    console.log('Deleted Answers:', userAnswers);
 
     // delete all its interactions
     const deletedInteractions = await Interaction.deleteMany({
