@@ -117,17 +117,12 @@ export async function updateUser(params: UpdateUserParams) {
 }
 
 export async function deleteUser(params: DeleteUserParams) {
-  console.log('In the deleted block');
   try {
-    console.log('In the try block');
-
     connectToDatabase();
     const { clerkId } = params;
 
     // const user = await User.findOneAndDelete({ clerkId });
     const user = await User.findOne({ clerkId });
-
-    console.log('User ', user, ' user ID:  ', user._id);
 
     if (!user) {
       throw new Error('User not found');
@@ -152,10 +147,15 @@ export async function deleteUser(params: DeleteUserParams) {
     console.log('Deleted Answers:', userAnswers);
 
     // Remove user's answer IDs from questions
-    await Question.updateMany(
-      { _id: { $in: userQuestionIds } },
-      { $pull: { answers: { $in: user.answers } } }
-    );
+    for (const questionId of userQuestionIds) {
+      await Question.findByIdAndUpdate(questionId, {
+        $pull: { answers: { $in: user.answers } },
+      });
+    }
+    // const userQuestionAnswerIds = await Question.updateMany(
+    //   { _id: { $in: userQuestionIds } },
+    //   { $pull: { answers: { $in: user.answers } } }
+    // );
 
     // Remove user's upvotes from questions
     await Question.updateMany(
