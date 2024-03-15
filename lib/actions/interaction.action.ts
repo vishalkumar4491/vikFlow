@@ -8,10 +8,18 @@ import { ViewQuestionParams } from './shared.types';
 
 export async function viewQuestion(params: ViewQuestionParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const { questionId, userId } = params;
     // Update view count for the question
-
+    const question = await Question.findByIdAndUpdate(questionId, {
+      $inc: { views: 1 },
+    });
+    if (question.views % 100 === 0) {
+      // Increment author's reputation by +1 for every 100 question views
+      await User.findByIdAndUpdate(question.author, {
+        $inc: { reputation: 1 },
+      });
+    }
     if (userId) {
       const existingInteraction = await Interaction.findOne({
         user: userId,
@@ -26,17 +34,6 @@ export async function viewQuestion(params: ViewQuestionParams) {
         user: userId,
         action: 'view',
         question: questionId,
-      });
-    }
-
-    const question = await Question.findByIdAndUpdate(questionId, {
-      $inc: { views: 1 },
-    });
-
-    if (question.views % 100 === 0) {
-      // Increment author's reputation by +1 for every 100 question views
-      await User.findByIdAndUpdate(question.author, {
-        $inc: { reputation: 1 },
       });
     }
   } catch (error) {

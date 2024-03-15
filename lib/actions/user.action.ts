@@ -18,6 +18,7 @@ import Question from '../database/question.model';
 import { FilterQuery } from 'mongoose';
 import Tag from '../database/tag.model';
 import Answer from '../database/answer.model';
+import Interaction from '../database/interaction.model';
 import { assignBadges } from '../utils';
 
 export async function getAllUsers(params: GetAllUsersParams) {
@@ -89,6 +90,7 @@ export async function getUserById(params: any) {
 }
 
 export async function createUser(userData: CreateUserParams) {
+  console.log('in create user block');
   try {
     connectToDatabase();
 
@@ -115,33 +117,51 @@ export async function updateUser(params: UpdateUserParams) {
 }
 
 export async function deleteUser(params: DeleteUserParams) {
+  console.log('In the deleted block');
   try {
+    console.log('In the try block');
+
     connectToDatabase();
     const { clerkId } = params;
 
-    const user = await User.findOneAndDelete({ clerkId });
+    // const user = await User.findOneAndDelete({ clerkId });
+    const user = await User.findOne({ clerkId });
+
+    console.log('User ', user, ' user ID:  ', user._id);
 
     if (!user) {
       throw new Error('User not found');
-
-      // Delete user from db
-      // and questions, answers, comments, etc.
-
-      // get user question ids
-      // eslint-disable-next-line no-unreachable
-      const userQuestionIds = await Question.find({
-        author: user._id,
-      }).distinct('_id');
-
-      // delete user's questions
-      await Question.deleteMany({ author: user._id });
-
-      // TODO: delete user's answers, comments etc.
-
-      // finally delete the user
-      const deletedUser = await User.findByIdAndDelete(user._id);
-      return deletedUser;
     }
+    // Delete user from db
+    // and questions, answers, comments, etc.
+
+    // get user question ids
+    // eslint-disable-next-line no-unreachable
+    const userQuestionIds = await Question.find({
+      author: user._id,
+    }).distinct('_id');
+    console.log('User Question IDs:', userQuestionIds);
+
+    // delete user's questions
+    const deletedQuestions = await Question.deleteMany({ author: user._id });
+    console.log('Deleted Questions:', deletedQuestions);
+
+    // delete user's answers
+    const deletedAnswers = await Answer.deleteMany({
+      question: { $in: userQuestionIds },
+      author: user._id,
+    });
+    console.log('Deleted Answers:', deletedAnswers);
+
+    // delete all its interactions
+    const deletedInteractions = await Interaction.deleteMany({
+      user: user._id,
+    });
+    console.log('Deleted Interactions:', deletedInteractions);
+    // finally delete the user
+    const deletedUser = await User.findByIdAndDelete(user._id);
+    console.log('Deleted User:', deletedUser);
+    return deletedUser;
   } catch (error) {
     console.error(error);
     throw error;
