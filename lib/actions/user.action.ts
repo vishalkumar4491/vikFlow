@@ -139,9 +139,9 @@ export async function deleteUser(params: DeleteUserParams) {
     }).distinct('_id');
     console.log('User Question IDs:', userQuestionIds);
 
-    const userAnswerIds = await Answer.find({
-      author: user._id,
-    });
+    // const userAnswerIds = await Answer.find({
+    //   author: user._id,
+    // })
 
     // Remove user's answer IDs from questions
     for (const questionId of userQuestionIds) {
@@ -172,32 +172,24 @@ export async function deleteUser(params: DeleteUserParams) {
       }
     }
 
-    for (const answerId of userAnswerIds) {
-      const answer = await Answer.findById(answerId);
-      const questionId = answer.question;
-      const question = await Question.findById(questionId);
-      const deletedOtherAns = await Question.updateOne(
-        { _id: questionId },
-        { $pull: { answers: answerId } }
-      );
-    }
-
     // Find questions authored by other users where the current user has answered
     // answer.author can directly take author value from Answer schema.
-    // const otherUserQuestions = await Question.find({ 'answers.author': user._id });
+    const otherUserQuestions = await Question.find({
+      'answers.author': user._id,
+    });
 
-    // console.log(otherUserQuestions);
+    console.log(otherUserQuestions);
 
-    // // Loop through other users' questions and remove the current user's answer IDs
-    // for (const question of otherUserQuestions) {
-    //   console.log(question);
-    //   const deletedOtherAns = await Question.updateOne(
-    //     { _id: question._id },
-    //     { $pull: { answers: { $in: user.answers } } }
-    //   );
+    // Loop through other users' questions and remove the current user's answer IDs
+    for (const question of otherUserQuestions) {
+      console.log(question);
+      const deletedOtherAns = await Question.updateOne(
+        { _id: question._id },
+        { $pull: { answers: { $in: user.answers } } }
+      );
 
-    //   console.log(deletedOtherAns);
-    // }
+      console.log(deletedOtherAns);
+    }
 
     // for (const questionId of userQuestionIds) {
     //   const question = await Question.findById(questionId);
