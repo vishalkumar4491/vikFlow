@@ -124,6 +124,8 @@ export async function deleteUser(params: DeleteUserParams) {
     // const user = await User.findOneAndDelete({ clerkId });
     const user = await User.findOne({ clerkId });
 
+    console.log('user', user);
+
     if (!user) {
       throw new Error('User not found');
     }
@@ -131,19 +133,19 @@ export async function deleteUser(params: DeleteUserParams) {
     // Delete user from db
     // and questions, answers, comments, etc.
 
-    // get user question ids
-    // eslint-disable-next-line no-unreachable
+    // Get the IDs of questions authored by the current user
     const userQuestionIds = await Question.find({
       author: user._id,
     }).distinct('_id');
     console.log('User Question IDs:', userQuestionIds);
 
-    // Remove user's answer IDs from questions
+    const userAnswerIds = await Answer.find({
+      author: user._id,
+    });
 
     // Remove user's answer IDs from questions
-
     for (const questionId of userQuestionIds) {
-      console.log('Processing question with ID:', questionId);
+      console.log('Current user QUestion ID:', questionId);
 
       // Retrieve the question document by ID
       const question = await Question.findById(questionId);
@@ -170,24 +172,32 @@ export async function deleteUser(params: DeleteUserParams) {
       }
     }
 
-    // Find questions authored by other users where the current user has answered
-    const otherUserQuestions = await Question.find({
-      author: { $ne: user._id }, // Exclude questions authored by the current user
-      answers: { $in: user.answers }, // Include questions where the current user has answered
-    });
-
-    console.log(otherUserQuestions);
-
-    // Loop through other users' questions and remove the current user's answer IDs
-    for (const question of otherUserQuestions) {
-      console.log(question);
+    for (const answerId of userAnswerIds) {
+      const answer = await Answer.findById(answerId);
+      const questionId = answer.question;
+      const question = await Question.findById(questionId);
       const deletedOtherAns = await Question.updateOne(
-        { _id: question._id },
-        { $pull: { answers: { $in: user.answers } } }
+        { _id: questionId },
+        { $pull: { answers: answerId } }
       );
-
-      console.log(deletedOtherAns);
     }
+
+    // Find questions authored by other users where the current user has answered
+    // answer.author can directly take author value from Answer schema.
+    // const otherUserQuestions = await Question.find({ 'answers.author': user._id });
+
+    // console.log(otherUserQuestions);
+
+    // // Loop through other users' questions and remove the current user's answer IDs
+    // for (const question of otherUserQuestions) {
+    //   console.log(question);
+    //   const deletedOtherAns = await Question.updateOne(
+    //     { _id: question._id },
+    //     { $pull: { answers: { $in: user.answers } } }
+    //   );
+
+    //   console.log(deletedOtherAns);
+    // }
 
     // for (const questionId of userQuestionIds) {
     //   const question = await Question.findById(questionId);
