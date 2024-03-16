@@ -155,11 +155,11 @@ export async function deleteUser(params: DeleteUserParams) {
       console.log('Processing question with ID:', questionId);
 
       // Retrieve the question document by ID
-      const question = await Question.findById(questionId);
-      console.log('Question before update:', question);
+      // const question = await Question.findById(questionId);
+      // console.log('Question before update:', question);
 
-      const answerIds = question.answers; // Get answer IDs from the question
-
+      const answerIds = questionId.answers; // Get answer IDs from the question
+      console.log('Answer IDs:', answerIds);
       // Find all users who have answered this question (excluding the current user)
       const otherUsers = await User.find({
         _id: { $ne: user._id },
@@ -172,7 +172,7 @@ export async function deleteUser(params: DeleteUserParams) {
       for (const otherUser of otherUsers) {
         // Delete other user's answers to this question
         await Answer.deleteMany({
-          question: question._id,
+          question: questionId._id,
           author: otherUser._id,
         });
       }
