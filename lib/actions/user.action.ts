@@ -174,22 +174,22 @@ export async function deleteUser(params: DeleteUserParams) {
 
     // Find questions authored by other users where the current user has answered
     // answer.author can directly take author value from Answer schema.
-    const otherUserQuestions = await Question.find({
-      'answers.author': user._id,
-    });
+    // const otherUserQuestions = await Question.find({
+    //   'answers.author': user._id,
+    // });
 
-    console.log(otherUserQuestions);
+    // console.log(otherUserQuestions);
 
-    // Loop through other users' questions and remove the current user's answer IDs
-    for (const question of otherUserQuestions) {
-      console.log(question);
-      const deletedOtherAns = await Question.updateOne(
-        { _id: question._id },
-        { $pull: { answers: { $in: user.answers } } }
-      );
+    // // Loop through other users' questions and remove the current user's answer IDs
+    // for (const question of otherUserQuestions) {
+    //   console.log(question);
+    //   const deletedOtherAns = await Question.updateOne(
+    //     { _id: question._id },
+    //     { $pull: { answers: { $in: user.answers } } }
+    //   );
 
-      console.log(deletedOtherAns);
-    }
+    //   console.log(deletedOtherAns);
+    // }
 
     // for (const questionId of userQuestionIds) {
     //   const question = await Question.findById(questionId);
