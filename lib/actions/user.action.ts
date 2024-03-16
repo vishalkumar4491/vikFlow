@@ -149,19 +149,39 @@ export async function deleteUser(params: DeleteUserParams) {
     // Remove user's answer IDs from questions
 
     // Remove user's answer IDs from questions
+
     for (const questionId of userQuestionIds) {
+      console.log('Processing question with ID:', questionId);
+
+      // Retrieve the question document by ID
       const question = await Question.findById(questionId);
       console.log('Question before update:', question);
 
+      // Perform the update operation
       await Question.findByIdAndUpdate(
         questionId,
         { $pull: { answers: user.answers } },
         { new: true }
       );
 
+      // Retrieve the updated question document by ID
       const updatedQuestion = await Question.findById(questionId);
       console.log('Question after update:', updatedQuestion);
     }
+
+    // for (const questionId of userQuestionIds) {
+    //   const question = await Question.findById(questionId);
+    //   console.log('Question before update:', question);
+
+    //   await Question.findByIdAndUpdate(
+    //     questionId,
+    //     { $pull: { answers: user.answers } },
+    //     { new: true }
+    //   );
+
+    //   const updatedQuestion = await Question.findById(questionId);
+    //   console.log('Question after update:', updatedQuestion);
+    // }
 
     // for (const questionId of userQuestionIds) {
     //   await Question.findByIdAndUpdate(questionId, {
