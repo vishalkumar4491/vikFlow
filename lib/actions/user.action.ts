@@ -139,9 +139,12 @@ export async function deleteUser(params: DeleteUserParams) {
     }).distinct('_id');
     console.log('User Question IDs:', userQuestionIds);
 
-    // const userAnswerIds = await Answer.find({
-    //   author: user._id,
-    // })
+    const userAnswerIds = await Answer.find({
+      author: user._id,
+      $expr: { $ne: ['$author', '$question.author'] }, // Exclude answers where the author matches the question's author
+    }).select('_id question author');
+
+    console.log('Answer IDs', userAnswerIds);
 
     // Remove user's answer IDs from questions
     for (const questionId of userQuestionIds) {
@@ -180,7 +183,7 @@ export async function deleteUser(params: DeleteUserParams) {
 
     // console.log(otherUserQuestions);
 
-    // // Loop through other users' questions and remove the current user's answer IDs
+    //  Loop through other users' questions and remove the current user's answer IDs
     // for (const question of otherUserQuestions) {
     //   console.log(question);
     //   const deletedOtherAns = await Question.updateOne(
@@ -223,6 +226,26 @@ export async function deleteUser(params: DeleteUserParams) {
     const userAnswers = await Answer.deleteMany({ author: user._id });
 
     console.log('Deleted Answers:', userAnswers);
+
+    for (const answer of userAnswerIds) {
+      const question = await Question.findOneAndUpdate(
+        {
+          _id: answer.question, // Match the question id
+          author: { $ne: user._id }, // Make sure the author is not the current user
+        },
+        {
+          $pull: { answers: answer._id }, // Remove the answer id from the answers array
+        },
+        { new: true } // Return the updated document
+      );
+
+      if (!question) {
+        console.log(
+          `Skipping answer with ID ${answer._id} because the question author is the current user.`
+        );
+      }
+      console.log('Answer of user ', question);
+    }
 
     // Remove user's upvotes from questions
     await Question.updateMany(
