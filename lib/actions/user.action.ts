@@ -147,11 +147,27 @@ export async function deleteUser(params: DeleteUserParams) {
     console.log('Deleted Answers:', userAnswers);
 
     // Remove user's answer IDs from questions
+
+    // Remove user's answer IDs from questions
     for (const questionId of userQuestionIds) {
-      await Question.findByIdAndUpdate(questionId, {
-        $pull: { answers: { $in: user.answers } },
-      });
+      const question = await Question.findById(questionId);
+      console.log('Question before update:', question);
+
+      await Question.findByIdAndUpdate(
+        questionId,
+        { $pull: { answers: user.answers } },
+        { new: true }
+      );
+
+      const updatedQuestion = await Question.findById(questionId);
+      console.log('Question after update:', updatedQuestion);
     }
+
+    // for (const questionId of userQuestionIds) {
+    //   await Question.findByIdAndUpdate(questionId, {
+    //     $pull: { answers: { $in: user.answers } },
+    //   });
+    // }
     // const userQuestionAnswerIds = await Question.updateMany(
     //   { _id: { $in: userQuestionIds } },
     //   { $pull: { answers: { $in: user.answers } } }
