@@ -18,7 +18,7 @@ export const connectToDatabase = async () => {
     await mongoose.connect(process.env.MONGODB_URL, {
       dbName: 'VikFlow',
     });
-    console.log('Connected to database');
+    // console.log('Connected to database');
   } catch (error) {
     console.log('Connection is failed ', error);
   }

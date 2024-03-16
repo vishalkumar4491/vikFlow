@@ -121,12 +121,13 @@ export async function deleteUser(params: DeleteUserParams) {
     connectToDatabase();
     const { clerkId } = params;
 
-    // const user = await User.findOneAndDelete({ clerkId });
-    const user = await User.findOne({ clerkId });
+    const user = await User.findOneAndDelete({ clerkId });
+    // const user = await User.findOne({ clerkId });
 
     if (!user) {
       throw new Error('User not found');
     }
+
     // Delete user from db
     // and questions, answers, comments, etc.
 
@@ -157,16 +158,43 @@ export async function deleteUser(params: DeleteUserParams) {
       const question = await Question.findById(questionId);
       console.log('Question before update:', question);
 
-      // Perform the update operation
-      await Question.findByIdAndUpdate(
-        questionId,
-        { $pull: { answers: user.answers } },
-        { new: true }
+      const answerIds = question.answers; // Get answer IDs from the question
+
+      // Find all users who have answered this question (excluding the current user)
+      const otherUsers = await User.find({
+        _id: { $ne: user._id },
+        answers: { $in: answerIds },
+      });
+
+      console.log('Other users :', otherUsers);
+
+      // Loop through other users and delete their answers
+      for (const otherUser of otherUsers) {
+        // Delete other user's answers to this question
+        await Answer.deleteMany({
+          question: question._id,
+          author: otherUser._id,
+        });
+      }
+    }
+
+    // Find questions authored by other users where the current user has answered
+    const otherUserQuestions = await Question.find({
+      author: { $ne: user._id }, // Exclude questions authored by the current user
+      answers: { $in: user.answers }, // Include questions where the current user has answered
+    });
+
+    console.log(otherUserQuestions);
+
+    // Loop through other users' questions and remove the current user's answer IDs
+    for (const question of otherUserQuestions) {
+      console.log(question);
+      const deletedOtherAns = await Question.updateOne(
+        { _id: question._id },
+        { $pull: { answers: { $in: user.answers } } }
       );
 
-      // Retrieve the updated question document by ID
-      const updatedQuestion = await Question.findById(questionId);
-      console.log('Question after update:', updatedQuestion);
+      console.log(deletedOtherAns);
     }
 
     // for (const questionId of userQuestionIds) {
