@@ -14,7 +14,8 @@ export async function viewQuestion(params: ViewQuestionParams) {
     const question = await Question.findByIdAndUpdate(questionId, {
       $inc: { views: 1 },
     });
-    if (question.views % 100 === 0) {
+
+    if (question?.views % 100 === 0) {
       // Increment author's reputation by +1 for every 100 question views
       await User.findByIdAndUpdate(question.author, {
         $inc: { reputation: 1 },

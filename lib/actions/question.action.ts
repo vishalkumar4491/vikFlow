@@ -240,14 +240,28 @@ export async function deleteQuestion(params: DeleteQuestionParams) {
 
     const { questionId, path } = params;
 
+    // Find the question by its ID
+    const question = await Question.findById(questionId);
+    // Retrieve the tag IDs associated with the question
+    const tagIds = question.tags;
+
     await Question.deleteOne({ _id: questionId });
     // deleteing all answers and interaction associated woth the question
     await Answer.deleteMany({ question: questionId });
     await Interaction.deleteMany({ question: questionId });
+
+    // Perform the update operation to remove the question ID from the tags' questions array
     await Tag.updateMany(
-      { questions: questionId },
-      { $pull: { questions: questionId } }
+      { _id: { $in: tagIds } },
+      { $pull: { questions: questionId } },
+      { multi: true }
     );
+
+    // Check if any of the tags have an empty questions array and delete them
+    await Tag.deleteMany({
+      _id: { $in: tagIds },
+      questions: { $exists: true, $size: 0 },
+    });
 
     revalidatePath(path);
   } catch (error) {

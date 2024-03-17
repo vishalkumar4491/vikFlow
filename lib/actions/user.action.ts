@@ -124,8 +124,6 @@ export async function deleteUser(params: DeleteUserParams) {
     // const user = await User.findOneAndDelete({ clerkId });
     const user = await User.findOne({ clerkId });
 
-    console.log('user', user);
-
     if (!user) {
       throw new Error('User not found');
     }
@@ -137,32 +135,40 @@ export async function deleteUser(params: DeleteUserParams) {
     const userQuestionIds = await Question.find({
       author: user._id,
     }).distinct('_id');
-    console.log('User Question IDs:', userQuestionIds);
 
     const userAnswerIds = await Answer.find({
       author: user._id,
       $expr: { $ne: ['$author', '$question.author'] }, // Exclude answers where the author matches the question's author
     }).select('_id question author');
 
-    console.log('Answer IDs', userAnswerIds);
-
-    // Remove user's answer IDs from questions
+    // Remove other user's answer  from questions
     for (const questionId of userQuestionIds) {
-      console.log('Current user QUestion ID:', questionId);
-
       // Retrieve the question document by ID
       const question = await Question.findById(questionId);
-      console.log('Question before update:', question);
+
+      // Retrieve the tag IDs associated with the question for deleting or reducing counts of tags
+      const tagIds = question.tags;
+
+      // Perform the update operation to remove the question ID from the tags' questions array
+      await Tag.updateMany(
+        { _id: { $in: tagIds } },
+        { $pull: { questions: questionId } },
+        { multi: true }
+      );
+
+      // Check if any of the tags have an empty questions array and delete them
+      await Tag.deleteMany({
+        _id: { $in: tagIds },
+        questions: { $exists: true, $size: 0 },
+      });
 
       const answerIds = question.answers; // Get answer IDs from the question
-      console.log('Answer IDs:', answerIds);
+
       // Find all users who have answered this question (excluding the current user)
       const otherUsers = await User.find({
         _id: { $ne: user._id },
         answers: { $in: answerIds },
       });
-
-      console.log('Other users :', otherUsers);
 
       // Loop through other users and delete their answers
       for (const otherUser of otherUsers) {
@@ -171,61 +177,14 @@ export async function deleteUser(params: DeleteUserParams) {
           question: question._id,
           author: otherUser._id,
         });
-        console.log('othersAns ', othersAns);
       }
     }
 
-    // Find questions authored by other users where the current user has answered
-    // answer.author can directly take author value from Answer schema.
-    // const otherUserQuestions = await Question.find({
-    //   'answers.author': user._id,
-    // });
-
-    // console.log(otherUserQuestions);
-
-    //  Loop through other users' questions and remove the current user's answer IDs
-    // for (const question of otherUserQuestions) {
-    //   console.log(question);
-    //   const deletedOtherAns = await Question.updateOne(
-    //     { _id: question._id },
-    //     { $pull: { answers: { $in: user.answers } } }
-    //   );
-
-    //   console.log(deletedOtherAns);
-    // }
-
-    // for (const questionId of userQuestionIds) {
-    //   const question = await Question.findById(questionId);
-    //   console.log('Question before update:', question);
-
-    //   await Question.findByIdAndUpdate(
-    //     questionId,
-    //     { $pull: { answers: user.answers } },
-    //     { new: true }
-    //   );
-
-    //   const updatedQuestion = await Question.findById(questionId);
-    //   console.log('Question after update:', updatedQuestion);
-    // }
-
-    // for (const questionId of userQuestionIds) {
-    //   await Question.findByIdAndUpdate(questionId, {
-    //     $pull: { answers: { $in: user.answers } },
-    //   });
-    // }
-    // const userQuestionAnswerIds = await Question.updateMany(
-    //   { _id: { $in: userQuestionIds } },
-    //   { $pull: { answers: { $in: user.answers } } }
-    // );
-
     // delete user's questions
-    const deletedQuestions = await Question.deleteMany({ author: user._id });
-    console.log('Deleted Questions:', deletedQuestions);
+    await Question.deleteMany({ author: user._id });
 
     // delete user's answers
-    const userAnswers = await Answer.deleteMany({ author: user._id });
-
-    console.log('Deleted Answers:', userAnswers);
+    await Answer.deleteMany({ author: user._id });
 
     for (const answer of userAnswerIds) {
       const question = await Question.findOneAndUpdate(
@@ -244,7 +203,6 @@ export async function deleteUser(params: DeleteUserParams) {
           `Skipping answer with ID ${answer._id} because the question author is the current user.`
         );
       }
-      console.log('Answer of user ', question);
     }
 
     // Remove user's upvotes from questions
@@ -272,13 +230,12 @@ export async function deleteUser(params: DeleteUserParams) {
     );
 
     // delete all its interactions
-    const deletedInteractions = await Interaction.deleteMany({
+    await Interaction.deleteMany({
       user: user._id,
     });
-    console.log('Deleted Interactions:', deletedInteractions);
+
     // finally delete the user
     const deletedUser = await User.findByIdAndDelete(user._id);
-    console.log('Deleted User:', deletedUser);
     return deletedUser;
   } catch (error) {
     console.error(error);
@@ -504,7 +461,7 @@ export async function getUserAnswers(params: GetUserStatsParams) {
   try {
     connectToDatabase();
 
-    const { userId, page = 1, pageSize = 1 } = params;
+    const { userId, page = 1, pageSize = 10 } = params;
 
     const skipAmount = (page - 1) * pageSize;
 
