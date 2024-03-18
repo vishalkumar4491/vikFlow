@@ -350,7 +350,7 @@ export async function getUserInfo(params: GetUserByIdParams) {
     connectToDatabase();
     const { userId } = params;
 
-    const user = await User.findOne({ clerkId: userId });
+    const user = await User.findOne({ _id: userId });
 
     if (!user) {
       throw new Error('User not found');
